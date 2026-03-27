@@ -1,0 +1,1228 @@
+import React, { useState, useMemo } from 'react';
+import { BookOpen, PenTool, CheckCircle, XCircle, ChevronRight, ChevronLeft, RefreshCw, Play, Info } from 'lucide-react';
+
+// --- QUESTION DATABASE (76 Questions) ---
+const questionsData = [
+  // --- WEEK 0 ---
+  {
+    id: "w0q1",
+    week: 0,
+    text: "Statistics and Probability is the title of a book. If each letter was carved into a block and dropped into a bag, what are the chances a person would draw either the letter A or I from the bag?",
+    code: null,
+    options: ["7/24", "3/24", "1/6", "1/4"],
+    correctAnswers: ["7/24"],
+    explanation: "The title 'Statistics and Probability' has 24 letters total (excluding spaces). The letter 'A' appears 3 times (StAtistics, And, ProbAbility), and 'I' appears 4 times (StatIstIcs, ProbabIlIty). Total = 3 + 4 = 7. Therefore, probability is 7/24."
+  },
+  {
+    id: "w0q2",
+    week: 0,
+    text: "A manufacturing company is set up in two different locations. If the number of employees in one location are 663, and the average monthly salary for their employees is $13454, and the number of employees in the other location are 504, and the average monthly salary for their employees is $17591. Find the combined arithmetic mean of the monthly salary?",
+    code: null,
+    options: ["$15804.33", "$15522.5", "$15240.67", "None of these"],
+    correctAnswers: ["$15240.67"],
+    explanation: "Combined mean = (n1*x1 + n2*x2) / (n1 + n2) = ((663 * 13454) + (504 * 17591)) / (663 + 504) = (8920002 + 8865864) / 1167 = 17785866 / 1167 = $15240.67."
+  },
+  {
+    id: "w0q3",
+    week: 0,
+    text: "Given 2 samples, Sample 1 = [13.3, 2.4, 10, 13.3, 11] and Sample 2 = [8.5, 7.1, 12.6, 11.5, 10.3]. Find the sample which has a relatively greater spread of values from the mean.",
+    code: null,
+    options: ["Sample 1", "Sample 2", "Both the samples are equally spread", "None of these"],
+    correctAnswers: ["Sample 1"],
+    explanation: "Sample 1 values range from 2.4 to 13.3 (range of 10.9), while Sample 2 values range from 7.1 to 12.6 (range of 5.5). Because its values are further dispersed from its center, Sample 1 has a greater spread/variance."
+  },
+  {
+    id: "w0q4",
+    week: 0,
+    text: "Given tabular data on a test to detect a virus: Infected (Pos: 54, Neg: 138), Not Infected (Pos: 173, Neg: 111). Find the number of people who have not actually contracted the virus yet have been tested positive?",
+    code: null,
+    options: ["138", "227", "284", "173"],
+    correctAnswers: ["173"],
+    explanation: "Look at the intersection of the 'Not Infected' row and the 'Tested Positive' column. The value is 173. These represent false positives."
+  },
+  {
+    id: "w0q5",
+    week: 0,
+    text: "Given a pie chart that indicates the expenditure of an organization: R&D (31.28%), Engineering (21.46%), Marketing (13.97%), Compensations (33.29%). What is the ratio of expenditure for the R&D department to the Marketing department?",
+    code: null,
+    options: ["1 : 1.54", "1 : 0.65", "1 : 0.44", "None of these"],
+    correctAnswers: ["1 : 0.44"],
+    explanation: "The ratio of R&D to Marketing is 31.28 to 13.97. The options represent this as a 1:X ratio. Dividing Marketing by R&D gives 13.97 / 31.28 = 0.4466. Therefore, the ratio is approx 1 : 0.44."
+  },
+  {
+    id: "w0q6",
+    week: 0,
+    text: "Ben decides to note down the customer's waiting time in minutes. What kind of graph would be appropriate to check the frequency distributions of customers' waiting time?",
+    code: null,
+    options: ["Line plot", "Bar plot", "Histogram", "Scatter plot"],
+    correctAnswers: ["Histogram"],
+    explanation: "Waiting time is a continuous numerical variable. A histogram is the best graph to display the frequency distribution of continuous, grouped data."
+  },
+  {
+    id: "w0q7",
+    week: 0,
+    text: "3 natural numbers are chosen at random. What is the probability that their product yields an odd number?",
+    code: null,
+    options: ["1/8", "1/6", "2/3", "1/2"],
+    correctAnswers: ["1/8"],
+    explanation: "The product of numbers is odd ONLY if all of the numbers are odd. The probability of randomly choosing one odd number is 1/2. For 3 consecutive numbers, it's (1/2) * (1/2) * (1/2) = 1/8."
+  },
+  {
+    id: "w0q8",
+    week: 0,
+    text: "The mean of the first n natural numbers is",
+    code: null,
+    options: ["n!", "(n/2)+1", "(n+1)/2", "n^2"],
+    correctAnswers: ["(n+1)/2"],
+    explanation: "The sum of the first n natural numbers is n(n+1)/2. To find the mean, you divide this sum by n, which leaves (n+1)/2."
+  },
+  {
+    id: "w0q9",
+    week: 0,
+    text: "128 players are participating in a knockout tournament. How many games are required to decide the winner?",
+    code: null,
+    options: ["124", "127", "64", "130"],
+    correctAnswers: ["127"],
+    explanation: "In a single-elimination knockout tournament, every game eliminates exactly one player. To get a single winner out of 128 players, exactly 127 players must be eliminated, requiring 127 games."
+  },
+  {
+    id: "w0q10",
+    week: 0,
+    text: "Given [x1, x2, ..., xn] are the possible values of a random variable X, and p1, p2, ..., pn be the corresponding probabilities. The mean is computed by the formula:",
+    code: null,
+    options: ["∑(p_i)", "∑(p_i * x_i)", "∑(x_i)/n", "None of these"],
+    correctAnswers: ["∑(p_i * x_i)"],
+    explanation: "The mean (or Expected Value) of a discrete random variable is calculated by multiplying each possible value by its corresponding probability and summing the results."
+  },
+
+  // --- WEEK 1 ---
+  {
+    id: "w1q1",
+    week: 1,
+    text: "Which of the following variable names are INVALID in Python?",
+    code: null,
+    options: ["1_variable", "variable_1", "variable1", "variable#"],
+    correctAnswers: ["1_variable", "variable#"],
+    explanation: "Python variable names cannot begin with a number (making '1_variable' invalid) and cannot contain special characters like # (making 'variable#' invalid)."
+  },
+  {
+    id: "w1q2",
+    week: 1,
+    text: "Which of the following operators have lower precedence than “not” in Python?",
+    code: null,
+    options: ["+", "and", "==", "|"],
+    correctAnswers: ["and"],
+    explanation: "In Python, logical 'not' evaluates before logical 'and'. Arithmetic (+), comparison (==), and bitwise (|) operators all have higher precedence."
+  },
+  {
+    id: "w1q3",
+    week: 1,
+    text: "What will be the output of the following code?",
+    code: "a = 10\nb = 5\nprint(a ** b % 3)",
+    options: ["0", "100", "1", "2"],
+    correctAnswers: ["1"],
+    explanation: "Python evaluates exponentiation (**) before modulo (%). 10^5 = 100000. 100000 % 3 gives a remainder of 1."
+  },
+  {
+    id: "w1q4",
+    week: 1,
+    text: "What will be the output of the following code snippet?",
+    code: "greetings = \"Namaste\"\ngreetings_1 = float(greetings)\nprint(type(greetings_1))",
+    options: ["int", "float", "str", "Code will throw an error."],
+    correctAnswers: ["Code will throw an error."],
+    explanation: "The float() function expects a string that resembles a number. Passing a purely alphabetical string like 'Namaste' causes a ValueError."
+  },
+  {
+    id: "w1q5",
+    week: 1,
+    text: "Given two variables, j = 6 and g = 3.3. If both normal division and floor division operators were used to divide j by g, what would be the data type of the value obtained?",
+    code: null,
+    options: ["int, int", "float, float", "float, int", "int, float"],
+    correctAnswers: ["float, float"],
+    explanation: "Normal division (/) always returns a float. Floor division (//) returns an integer ONLY if both operands are integers. Since g is a float, floor division returns a float."
+  },
+  {
+    id: "w1q6",
+    week: 1,
+    text: "What will be the output of the following code snippet?",
+    code: "a = \"10\"\nb = float(a) + 5\nresult = str(b) + \"123\"\nprint(type(result))",
+    options: ["<class 'float'>", "<class 'str'>", "<class 'int'>", "The code will give an error."],
+    correctAnswers: ["<class 'str'>"],
+    explanation: "float('10') becomes 10.0. Adding 5 makes b equal to 15.0. str(15.0) converts it to '15.0'. Concatenating '15.0' + '123' gives '15.0123', which is a string."
+  },
+  {
+    id: "w1q7",
+    week: 1,
+    text: "What will be the output of the following code snippet?",
+    code: "a = 15\nb = 3\nc = 4\nresult = a + b * c // (c % b) - 5\nprint(result)",
+    options: ["20", "1", "22", "0"],
+    correctAnswers: ["22"],
+    explanation: "Following BODMAS: (c%b) is (4%3)=1. Next, b*c is 3*4=12. Then 12//1=12. Finally, a + 12 - 5 -> 15 + 12 - 5 = 22."
+  },
+  {
+    id: "w1q8",
+    week: 1,
+    text: "What is the output of the following code snippet?",
+    code: "a = 4\nb = 5\na *= b * 2\nprint(a)",
+    options: ["10", "20", "25", "40"],
+    correctAnswers: ["40"],
+    explanation: "The expression on the right side of the assignment operator (*=) is evaluated first. b * 2 is 10. The statement then becomes a *= 10, resulting in 40."
+  },
+  {
+    id: "w1q9",
+    week: 1,
+    text: "What is the output of the following code snippet?",
+    code: "a = 3\nb = 5\nc = (a == 3) and (b == 5) or (a != 3)\nprint(c)",
+    options: ["True", "False", "Error"],
+    correctAnswers: ["True"],
+    explanation: "(a==3) is True, (b==5) is True, (a!=3) is False. The expression is `True and True or False`. 'and' evaluates first giving `True`. Then `True or False` evaluates to True."
+  },
+  {
+    id: "w1q10",
+    week: 1,
+    text: "Let a = 5 (101 in binary) and b = 3 (011 in binary). What is the result of the following operation?",
+    code: "a = 5\nb = 3\nprint(a & b)",
+    options: ["3", "7", "5", "1"],
+    correctAnswers: ["1"],
+    explanation: "The '&' operator performs a bitwise AND. Comparing bits of 101 and 011 vertically, only the rightmost bits are both 1, resulting in 001. In decimal, 001 is 1."
+  },
+  {
+    id: "w1q11",
+    week: 1,
+    text: "What will be the output of `print(3 * 'A')` in Python?",
+    code: null,
+    options: ["'3A'", "'A3'", "An Error", "'AAA'"],
+    correctAnswers: ["'AAA'"],
+    explanation: "In Python, multiplying a string by an integer 'n' repeats the string 'n' times."
+  },
+  {
+    id: "w1q12",
+    week: 1,
+    text: "Which built-in Python function is used to find the number of elements in a list, tuple, or string?",
+    code: null,
+    options: ["size()", "count()", "length()", "len()"],
+    correctAnswers: ["len()"],
+    explanation: "The built-in len() function is used to retrieve the length (number of items) of an object in Python."
+  },
+  {
+    id: "w1q13",
+    week: 1,
+    text: "What does the expression `bool(\"\")` return in Python?",
+    code: null,
+    options: ["True", "False", "None", "0"],
+    correctAnswers: ["False"],
+    explanation: "In Python, an empty string \"\" is considered 'falsy', so wrapping it in bool() returns False."
+  },
+  {
+    id: "w1q14",
+    week: 1,
+    text: "Which of the following is NOT a valid Python keyword?",
+    code: null,
+    options: ["pass", "eval", "assert", "nonlocal"],
+    correctAnswers: ["eval"],
+    explanation: "pass, assert, and nonlocal are reserved Python keywords. 'eval' is a built-in function, not a keyword."
+  },
+  {
+    id: "w1q15",
+    week: 1,
+    text: "What is the result of indexing `[1, 2, 3, 4][-1]`?",
+    code: null,
+    options: ["1", "3", "4", "An Error"],
+    correctAnswers: ["4"],
+    explanation: "Python supports negative indexing. [-1] always returns the last element of the sequence."
+  },
+  {
+    id: "w1q16",
+    week: 1,
+    text: "What is the correct way to write a single-line comment in Python?",
+    code: null,
+    options: ["// Comment", "/* Comment */", "<!-- Comment -->", "# Comment"],
+    correctAnswers: ["# Comment"],
+    explanation: "Python uses the hash character (#) to denote single-line comments."
+  },
+
+  // --- WEEK 2 ---
+  {
+    id: "w2q1",
+    week: 2,
+    text: "Which of the following object does not support indexing?",
+    code: null,
+    options: ["tuple", "list", "dictionary", "set"],
+    correctAnswers: ["set"],
+    explanation: "Sets are unordered collections of unique elements in Python. Because they don't maintain order, they do not support indexing."
+  },
+  {
+    id: "w2q2",
+    week: 2,
+    text: "How can you concatenate the strings 'data' and 'science' with a hyphen(-) between them?",
+    code: null,
+    options: ["'data'.join('science')", "'-'.join(['data', 'science'])", "'data' + '-' + 'science'", "None of the above."],
+    correctAnswers: ["'-'.join(['data', 'science'])", "'data' + '-' + 'science'"],
+    explanation: "Both string concatenation using '+' and the string '.join()' method on an iterable (like a list) work perfectly for this task."
+  },
+  {
+    id: "w2q3",
+    week: 2,
+    text: "What will be the output of the following code snippet?",
+    code: "import numpy as np\na = np.array([[1, 2], [3, 4]])\nb = np.array([[5, 6], [7, 8]])\nc = np.dot(a, b)\nprint(c)",
+    options: ["[[ 5 12]\n [21 32]]", "[[19 22]\n [43 50]]", "[[ 3  8]\n [35 56]]", "[[ 5 21]\n [12 32]]"],
+    correctAnswers: ["[[19 22]\n [43 50]]"],
+    explanation: "np.dot() performs matrix multiplication. Row 1 * Col 1 = (1*5 + 2*7) = 19. Row 1 * Col 2 = (1*6 + 2*8) = 22. And so on."
+  },
+  {
+    id: "w2q4",
+    week: 2,
+    text: "What will be the output of the following code snippet?",
+    code: "import numpy as np\na = np.arange(10)\nb = a[1:5]\nb[0] = 10\nprint(a)",
+    options: ["[ 1 10 3 4 5 6 7 8 9 10]", "[ 10 1 2 3 4 5 6 7 8 9]", "[ 0 10 2 3 4 5 6 7 8 9]", "[ 10 2 3 4 5 6 7 8 9 ]"],
+    correctAnswers: ["[ 0 10 2 3 4 5 6 7 8 9]"],
+    explanation: "In NumPy, slicing creates a view, not a copy. Modifying b[0] (which points to a[1]) directly alters the original array 'a'."
+  },
+  {
+    id: "w2q5",
+    week: 2,
+    text: "What is the output of the following code?",
+    code: "s = {1, 2, 4, 5}\nl = []\nfor i in range(len(s)):\n    l += [1 + i]\nprint(l)",
+    options: ["[2, 3, 4, 5]", "[0, 1, 2, 3]", "[1, 2, 3, 4]", "Will throw an error: Set objects are not iterable."],
+    correctAnswers: ["[1, 2, 3, 4]"],
+    explanation: "The loop iterates over range(len(s)). The set has 4 elements, so range(4) generates 0, 1, 2, 3. The loop appends 1 + i to the list, resulting in 1+0=1, 1+1=2, 1+2=3, and 1+3=4."
+  },
+  {
+    id: "w2q6",
+    week: 2,
+    text: "What will be the output of the following code snippet?",
+    code: "A = {1, 'two', 3.0, 3, 27.5, 'four', 5}\nB = {27.5, 10}\nprint(A | B)",
+    options: ["{27.5}", "{1, 'four', 3.0, 3, 5, 'two', 10, 27.5}", "{1, 'four', 3.0, 5, 'two', 10, 27.5}", "{1, 'four', 3.0, 5, 'two', 3}"],
+    correctAnswers: ["{1, 'four', 3.0, 5, 'two', 10, 27.5}"],
+    explanation: "The '|' operator performs a set union. Python evaluates 3.0 and 3 as equal, so the set considers them duplicates and only keeps one. The rest are merged."
+  },
+  {
+    id: "w2q7",
+    week: 2,
+    text: "Let t1 = (1, 2, 'tuple', 4) and t2 = (5, 6, 7). Which of the following will not give any error after execution?",
+    code: null,
+    options: ["t1.append(5)", "x = t2[t1[1]]", "t3 = t1 + t2", "t3 = (t1, t2)", "t3 = (list(t1), list(t2))"],
+    correctAnswers: ["x = t2[t1[1]]", "t3 = t1 + t2", "t3 = (t1, t2)", "t3 = (list(t1), list(t2))"],
+    explanation: "Tuples are immutable, so they have no .append() method. All other operations (indexing, concatenating, tuple nesting) are perfectly valid."
+  },
+  {
+    id: "w2q8",
+    week: 2,
+    text: "Let d = {1: 'Python', 2: [1, 2, 3]}. Which among the following will not give an error after execution?",
+    code: null,
+    options: ["d[2].append(4)", "x = d[0]", "d['one'] = 1", "d.update({'one': 2})"],
+    correctAnswers: ["d[2].append(4)", "d['one'] = 1", "d.update({'one': 2})"],
+    explanation: "Accessing d[0] throws a KeyError because '0' is not a key in the dictionary. The list inside the dictionary can be appended to, and new keys can be added/updated."
+  },
+  {
+    id: "w2q9",
+    week: 2,
+    text: "Which of the following data type is immutable?",
+    code: null,
+    options: ["list", "set", "tuple", "dictionary"],
+    correctAnswers: ["tuple"],
+    explanation: "Lists, sets, and dictionaries can be modified after creation. Tuples are locked once created, making them immutable."
+  },
+  {
+    id: "w2q10",
+    week: 2,
+    text: "student = {'name': 'Jane', 'age': 25, 'courses': ['Math', 'Statistics']}\nWhich among the following will return {'name': 'Jane', 'age': 26, 'courses': [...], 'phone': '123-456'}?",
+    code: null,
+    options: ["student.update({'age': 26})", "student.update({'age': 26, 'phone': '123-456'})", "student['phone'] = '123-456'\nstudent.update({'age': 26})", "None of the above"],
+    correctAnswers: ["student.update({'age': 26, 'phone': '123-456'})", "student['phone'] = '123-456'\nstudent.update({'age': 26})"],
+    explanation: "You can update multiple key-value pairs at once using `.update()` with a dictionary, or you can add/update them sequentially line by line."
+  },
+  {
+    id: "w2q11",
+    week: 2,
+    text: "What is the output of the following code?",
+    code: "name = \"Mahesh\"\nl = []\nfor i in name:\n    l.append(i.capitalize())\nprint(l)",
+    options: ["['M', 'A', 'H', 'E', 'S', 'H']", "['m', 'a', 'h', 'e', 's', 'h']", "['M', 'a', 'h', 'e', 's', 'h']", "['m', 'A', 'H', 'E', 'S', 'H']"],
+    correctAnswers: ["['M', 'A', 'H', 'E', 'S', 'H']"],
+    explanation: "The loop iterates over each character. .capitalize() capitalizes the string (which is just one letter), effectively acting like .upper() in this context."
+  },
+  {
+    id: "w2q12",
+    week: 2,
+    text: "What will be the output of the following code snippet?",
+    code: "import numpy as np\na = np.array([range(i, i+4) for i in [1, 3, 5]])\nprint(a)",
+    options: ["[[1 2 3 4 5]\n [3 4 5 6 7]\n [5 6 7 8 9]]", "[[1 2 3 4]\n [3 4 5 6]\n [5 6 7 8]]", "[[2 3 4]\n [4 5 6]\n [6 7 8]]", "None of the above"],
+    correctAnswers: ["[[1 2 3 4]\n [3 4 5 6]\n [5 6 7 8]]"],
+    explanation: "The list comprehension generates three ranges: range(1, 5) -> [1,2,3,4], range(3, 7) -> [3,4,5,6], and range(5, 9) -> [5,6,7,8]. These become rows in the NumPy array."
+  },
+  {
+    id: "w2q13",
+    week: 2,
+    text: "In Python, Dictionary keys must belong to which category of data types?",
+    code: null,
+    options: ["Mutable", "Immutable", "Any Object", "Numerical only"],
+    correctAnswers: ["Immutable"],
+    explanation: "Dictionary keys must be hashable, which implies they must be of an immutable data type (like strings, numbers, or tuples)."
+  },
+  {
+    id: "w2q14",
+    week: 2,
+    text: "What is the fundamental difference between Python Lists and Tuples?",
+    code: null,
+    options: ["Lists can contain mixed data types, tuples cannot", "Lists are immutable, tuples are mutable", "Lists are mutable, tuples are immutable", "There is no difference"],
+    correctAnswers: ["Lists are mutable, tuples are immutable"],
+    explanation: "Once a tuple is created, you cannot change its values. Lists allow appending, removing, and changing elements."
+  },
+  {
+    id: "w2q15",
+    week: 2,
+    text: "If you have a list `my_list = [1, 2, 2, 3, 4, 4]`, how can you easily extract just the unique elements?",
+    code: null,
+    options: ["unique(my_list)", "list(set(my_list))", "my_list.distinct()", "my_list.unique()"],
+    correctAnswers: ["list(set(my_list))"],
+    explanation: "Converting a list to a 'set' automatically removes all duplicate values because sets only store unique elements. You can then cast it back to a list."
+  },
+  {
+    id: "w2q16",
+    week: 2,
+    text: "Which Numpy function is used to create a 2D array with 1s on the diagonal and 0s elsewhere?",
+    code: null,
+    options: ["np.ones()", "np.identity()", "np.eye()", "Both np.identity() and np.eye()"],
+    correctAnswers: ["Both np.identity() and np.eye()"],
+    explanation: "Both np.eye() and np.identity() can be used to generate identity matrices (1s on the diagonal, 0s elsewhere) in numpy."
+  },
+  {
+    id: "w2q17",
+    week: 2,
+    text: "If `d = {'a': 1, 'b': 2}`, what does `d.get('c', 3)` return?",
+    code: null,
+    options: ["KeyError", "None", "3", "1"],
+    correctAnswers: ["3"],
+    explanation: "The dict.get(key, default) method returns the value for the key if it exists. If it doesn't exist, it returns the provided default value (which is 3 here)."
+  },
+  {
+    id: "w2q18",
+    week: 2,
+    text: "Which method is used to add a single element to the very end of an existing Python list?",
+    code: null,
+    options: ["add()", "insert()", "append()", "extend()"],
+    correctAnswers: ["append()"],
+    explanation: "The .append() method places a single element at the end of a list. .extend() merges another iterable, and .insert() places it at a specific index."
+  },
+
+  // --- WEEK 3 ---
+  {
+    id: "w3q1",
+    week: 3,
+    text: "Which of the following is the correct approach to fill missing values in case of categorical variable?",
+    code: null,
+    options: ["Mean", "Median", "Mode", "None of the above"],
+    correctAnswers: ["Mode"],
+    explanation: "For categorical variables, you cannot calculate mathematical averages. The mode represents the most frequently occurring category, making it appropriate to fill missing data."
+  },
+  {
+    id: "w3q2",
+    week: 3,
+    text: "Of the following set of statements, which of them can be used to extract the column Type as a separate dataframe?",
+    code: null,
+    options: ["df_cars[['Type']]", "df_cars.iloc[[:, 1]", "df_cars.loc[:, ['Type']]", "None of the above"],
+    correctAnswers: ["df_cars[['Type']]", "df_cars.loc[:, ['Type']]"],
+    explanation: "Double brackets [['Type']] return a DataFrame instead of a Series. df_cars.loc[:, ['Type']] returns all rows for the specific column as a DataFrame."
+  },
+  {
+    id: "w3q3",
+    week: 3,
+    text: "The method df_cars.describe() will give description of which of the following column?",
+    code: null,
+    options: ["Car name", "Brand", "Price (in lakhs)", "All of the above"],
+    correctAnswers: ["Price (in lakhs)"],
+    explanation: "By default, the describe() method in Pandas only calculates summary statistics for numerical columns. 'Price' is the only numerical column here."
+  },
+  {
+    id: "w3q4",
+    week: 3,
+    text: "Which pandas function is used to stack the dataframes vertically?",
+    code: null,
+    options: ["pd.merge()", "pd.concat()", "join()", "None of the above"],
+    correctAnswers: ["pd.concat()"],
+    explanation: "pd.concat() is used to concatenate pandas objects along a particular axis (axis=0 by default, which stacks them vertically)."
+  },
+  {
+    id: "w3q5",
+    week: 3,
+    text: "Which of the following are libraries in Python?",
+    code: null,
+    options: ["Pandas", "Matplotlib", "NumPy", "All of the above"],
+    correctAnswers: ["All of the above"],
+    explanation: "Pandas (data manipulation), Matplotlib (visualization), and NumPy (numerical computation) are all standard Python libraries."
+  },
+  {
+    id: "w3q6",
+    week: 3,
+    text: "Which of the following variable have null values? (Referencing 'flavors_of_cocoa.csv')",
+    code: null,
+    options: ["ID", "Company", "Review Date", "Rating"],
+    correctAnswers: ["Review Date"],
+    explanation: "Based on the standard profiling of the flavors_of_cocoa dataset used in the course, the Review Date column contains null values."
+  },
+  {
+    id: "w3q7",
+    week: 3,
+    text: "Which of the following countries have maximum locations of cocoa manufacturing companies?",
+    code: null,
+    options: ["U.K.", "U.S.A.", "Canada", "France"],
+    correctAnswers: ["U.S.A."],
+    explanation: "Analyzing the 'Company Location' column in the flavors_of_cocoa dataset reveals that the U.S.A. hosts the highest number of manufacturing companies."
+  },
+  {
+    id: "w3q8",
+    week: 3,
+    text: "After checking the data summary, which feature requires a data conversion considering the data values held?",
+    code: null,
+    options: ["Rating", "Review date", "Company", "Bean origin"],
+    correctAnswers: ["Review date"],
+    explanation: "Dates are often imported as standard strings (object dtype) and must be explicitly converted to datetime objects for time-series analysis."
+  },
+  {
+    id: "w3q9",
+    week: 3,
+    text: "What is the maximum rating of chocolates?",
+    code: null,
+    options: ["1.00", "5.00", "3.18", "4.00"],
+    correctAnswers: ["5.00"],
+    explanation: "In the dataset, the rating scale generally maxes out at 5.00."
+  },
+  {
+    id: "w3q10",
+    week: 3,
+    text: "What will be the output of the following code?",
+    code: "import numpy as np\nB = [True, 2, 3.0, np.nan, \"False\"]\nprint([type(i) for i in B])",
+    options: ["[bool, int, float, float, str]", "[str, int, float, float, str]", "[bool, int, float, int, str]", "[bool, int, int, float, str]"],
+    correctAnswers: ["[bool, int, float, float, str]"],
+    explanation: "True is a bool. 2 is an int. 3.0 is a float. np.nan is officially represented as a floating-point value in Python (float). 'False' is a string because of the quotes."
+  },
+  {
+    id: "w3q11",
+    week: 3,
+    text: "What does df.info() provide?",
+    code: null,
+    options: ["Summary of the DataFrame, including the number of non-null entries.", "The first 5 rows of the DataFrame", "The data types of the columns", "The correlation matrix of the DataFrame"],
+    correctAnswers: ["Summary of the DataFrame, including the number of non-null entries."],
+    explanation: "df.info() provides a concise summary, including the index dtype, column dtypes, non-null values, and memory usage."
+  },
+  {
+    id: "w3q12",
+    week: 3,
+    text: "What will be the output of the following code?",
+    code: "import numpy as np\narr = np.array([1, 2, 3, 4, 5])\nprint(arr[::2])",
+    options: ["[1, 2]", "[1, 3, 5]", "[1, 2, 3, 4, 5]", "[5, 4, 3, 2, 1]"],
+    correctAnswers: ["[1, 3, 5]"],
+    explanation: "The syntax [start:stop:step] is used. [::2] means starting from the beginning to the end, taking every 2nd element (index 0, 2, 4), which corresponds to values 1, 3, and 5."
+  },
+  {
+    id: "w3q13",
+    week: 3,
+    text: "Which pandas function is used to read data from a CSV file into a DataFrame?",
+    code: null,
+    options: ["pd.read()", "pd.open_csv()", "pd.read_csv()", "pd.load_csv()"],
+    correctAnswers: ["pd.read_csv()"],
+    explanation: "Pandas utilizes pd.read_csv() to parse comma-separated values files and load them into a DataFrame."
+  },
+  {
+    id: "w3q14",
+    week: 3,
+    text: "How do you select only the first 5 rows of a pandas DataFrame named `df`?",
+    code: null,
+    options: ["df.first(5)", "df.head()", "df.top()", "df.show(5)"],
+    correctAnswers: ["df.head()"],
+    explanation: "The .head() method without arguments returns the top 5 rows of the DataFrame by default."
+  },
+  {
+    id: "w3q15",
+    week: 3,
+    text: "What does `df.shape` return in Pandas?",
+    code: null,
+    options: ["Total number of elements in the DataFrame", "A tuple representing the dimensionality (rows, columns)", "The memory size of the DataFrame", "A list of column names"],
+    correctAnswers: ["A tuple representing the dimensionality (rows, columns)"],
+    explanation: "df.shape is an attribute that returns a tuple representing the (number of rows, number of columns)."
+  },
+  {
+    id: "w3q16",
+    week: 3,
+    text: "Which method is used to remove rows containing missing (NaN) values in a pandas DataFrame?",
+    code: null,
+    options: ["df.drop()", "df.remove_na()", "df.dropna()", "df.fillna()"],
+    correctAnswers: ["df.dropna()"],
+    explanation: "The dropna() method removes missing values (NaN). By default, it drops any row containing at least one missing value."
+  },
+  {
+    id: "w3q17",
+    week: 3,
+    text: "What is the primary difference between `.loc` and `.iloc` in pandas?",
+    code: null,
+    options: ["loc is for rows, iloc is for columns", "loc is integer position-based, iloc is label-based", "loc is label-based, iloc is integer position-based", "There is no difference"],
+    correctAnswers: ["loc is label-based, iloc is integer position-based"],
+    explanation: "loc is primarily label based indexing, whereas iloc is primarily integer position based indexing."
+  },
+  {
+    id: "w3q18",
+    week: 3,
+    text: "What is the difference between a Pandas Series and a Pandas DataFrame?",
+    code: null,
+    options: ["A Series is 1D, a DataFrame is 2D", "A Series is 2D, a DataFrame is 1D", "Both are 2D but Series cannot have column names", "They are exactly the same thing"],
+    correctAnswers: ["A Series is 1D, a DataFrame is 2D"],
+    explanation: "A Series is essentially a single column of data (1-dimensional), whereas a DataFrame is a table containing multiple columns (2-dimensional)."
+  },
+
+  // --- WEEK 4 ---
+  {
+    id: "w4q1",
+    week: 4,
+    text: "Which of the following are regression problems? Assume that appropriate data is given.",
+    code: null,
+    options: ["Predicting the house price.", "Predicting whether it will rain or not on a given day.", "Predicting the maximum temperature on a given day.", "Predicting the sales of the ice-creams."],
+    correctAnswers: ["Predicting the house price.", "Predicting the maximum temperature on a given day.", "Predicting the sales of the ice-creams."],
+    explanation: "Regression involves predicting continuous, numerical outputs. Predicting 'rain or not' is a binary classification problem."
+  },
+  {
+    id: "w4q2",
+    week: 4,
+    text: "Which of the following are multiclass classification problems?",
+    code: null,
+    options: ["Classifying emails as spam or not spam.", "Classifying a person's blood type as A, B, AB, or O.", "Predicting the price of a second-hand car.", "Classifying a movie genre into Drama, Comedy, Action, or Thriller."],
+    correctAnswers: ["Classifying a person's blood type as A, B, AB, or O.", "Classifying a movie genre into Drama, Comedy, Action, or Thriller."],
+    explanation: "Multiclass classification assigns an instance to one of 3 or more distinct classes. Spam is binary. Price prediction is regression."
+  },
+  {
+    id: "w4q3",
+    week: 4,
+    text: "If a linear regression model achieves zero training error, can we say that all the data points lie on a straight line in the feature space?",
+    code: null,
+    options: ["Yes", "No"],
+    correctAnswers: ["Yes"],
+    explanation: "Training error represents the residuals (distance) from the data points to the best-fit line. If the error is exactly zero, every point has a distance of 0 to the line."
+  },
+  {
+    id: "w4q4",
+    week: 4,
+    text: "Which of the following machine learning techniques would NOT be appropriate to solve the problem of identifying whether a car requires service or not?",
+    code: null,
+    options: ["kNN", "Random Forest", "Logistic Regression", "Linear regression"],
+    correctAnswers: ["Linear regression"],
+    explanation: "Predicting 'Service Needed' (Yes/No) is a classification problem. Linear regression is used for predicting continuous numerical values, making it inappropriate here."
+  },
+  {
+    id: "w4q5",
+    week: 4,
+    text: "After applying logistic regression to the ServiceTrain dataset, what is/are the correct observations from the resultant confusion matrix?",
+    code: null,
+    options: ["True Positive = 29, True Negative = 94", "True Positive = 94, True Negative = 29", "False Positive = 5, True Negative = 94", "None of the above"],
+    correctAnswers: ["True Positive = 29, True Negative = 94", "False Positive = 5, True Negative = 94"],
+    explanation: "Based on the course's logistic regression model output for this specific dataset, 29 true positives and 94 true negatives were correctly identified, along with 5 false positives."
+  },
+  {
+    id: "w4q6",
+    week: 4,
+    text: "The logistic regression model built is checked for its prediction accuracy of the test data. What is the accuracy range (in %) of the predictions?",
+    code: null,
+    options: ["60 - 79", "90 - 95", "30 - 59", "80 - 89"],
+    correctAnswers: ["90 - 95"],
+    explanation: "The accuracy metric of the test data evaluating the ServiceTrain logistic regression model falls into the 90-95% highly accurate range."
+  },
+  {
+    id: "w4q7",
+    week: 4,
+    text: "How are categorical variables preprocessed before model building?",
+    code: null,
+    options: ["Standardization", "Dummy variables", "Correlation", "None of the above"],
+    correctAnswers: ["Dummy variables"],
+    explanation: "Machine learning models require numerical input. Categorical variables are transformed into binary numeric representation using Dummy variables (One-Hot Encoding)."
+  },
+  {
+    id: "w4q8",
+    week: 4,
+    text: "A regression model with the function y = 80 + 4.5x was built to understand the impact of temperature x on ice cream sales y. The temperature this month is 10 degrees more than the previous month. What is the predicted difference in ice cream sales?",
+    code: null,
+    options: ["56 units", "45 units", "80 units", "None of the above"],
+    correctAnswers: ["45 units"],
+    explanation: "In the equation y = mx + c, 'm' (4.5) represents the change in 'y' for every 1 unit increase in 'x'. If x increases by 10, y increases by 4.5 * 10 = 45."
+  },
+  {
+    id: "w4q9",
+    week: 4,
+    text: "X and Y are two variables that have a strong linear relationship. Which of the following statements are incorrect?",
+    code: null,
+    options: ["There cannot be a negative relationship between the two variables.", "The relationship between the two variables is purely causal.", "One variable may or may not cause a change in the other variable.", "The variables can be positively or negatively correlated with each other."],
+    correctAnswers: ["There cannot be a negative relationship between the two variables.", "The relationship between the two variables is purely causal."],
+    explanation: "Linear relationships CAN be negative (inverse). Also, correlation does not imply causation; a strong relationship does not mean one causes the other purely."
+  },
+  {
+    id: "w4q10",
+    week: 4,
+    text: "A multiple linear regression model is built on the Global Happiness Index dataset. What is the RMSE of the baseline model?",
+    code: null,
+    options: ["2.00", "0.50", "1.06", "0.75"],
+    correctAnswers: ["1.06"],
+    explanation: "Based on the training and execution of the multiple linear regression model in the assignment on the GHI Report.csv data, the Root Mean Squared Error (RMSE) is 1.06."
+  },
+  {
+    id: "w4q11",
+    week: 4,
+    text: "Which Python library is considered the industry standard for traditional machine learning algorithms (like Regression, SVM, KNN)?",
+    code: null,
+    options: ["TensorFlow", "scikit-learn", "PyTorch", "StatsModels"],
+    correctAnswers: ["scikit-learn"],
+    explanation: "scikit-learn (or sklearn) is the primary Python library used for building classical machine learning models."
+  },
+  {
+    id: "w4q12",
+    week: 4,
+    text: "What is the purpose of the `train_test_split` function in machine learning?",
+    code: null,
+    options: ["To merge two datasets", "To split data into subsets for training and evaluating a model", "To randomly shuffle columns in a dataframe", "To drop missing values"],
+    correctAnswers: ["To split data into subsets for training and evaluating a model"],
+    explanation: "It randomly splits your features and target variables into a training set (to build the model) and a testing set (to evaluate its performance on unseen data)."
+  },
+  {
+    id: "w4q13",
+    week: 4,
+    text: "In the K-Nearest Neighbors (KNN) algorithm, what does 'K' represent?",
+    code: null,
+    options: ["A constant value added to weights", "The number of features to select", "The number of nearest neighbors to consider", "The learning rate of the model"],
+    correctAnswers: ["The number of nearest neighbors to consider"],
+    explanation: "The 'K' in KNN stands for the number of surrounding data points (neighbors) the algorithm looks at to decide the class of a new instance."
+  },
+  {
+    id: "w4q14",
+    week: 4,
+    text: "What is a Confusion Matrix primarily used for?",
+    code: null,
+    options: ["Evaluating the performance of a classification model", "Scaling numerical features", "Calculating the learning rate", "Plotting decision trees"],
+    correctAnswers: ["Evaluating the performance of a classification model"],
+    explanation: "A confusion matrix displays the true positives, true negatives, false positives, and false negatives of a classification model's predictions."
+  },
+  {
+    id: "w4q15",
+    week: 4,
+    text: "What does 'Overfitting' mean in machine learning?",
+    code: null,
+    options: ["The model performs poorly on both training and test data", "The model performs very well on training data but poorly on unseen test data", "The model generalizes perfectly to new data", "The model fails to converge"],
+    correctAnswers: ["The model performs very well on training data but poorly on unseen test data"],
+    explanation: "Overfitting happens when a model learns the training data's noise and details too well, destroying its ability to predict accurately on new, unseen data."
+  },
+  {
+    id: "w4q16",
+    week: 4,
+    text: "Which of the following is an Unsupervised Learning task?",
+    code: null,
+    options: ["Classification", "Regression", "Clustering", "Logistic Regression"],
+    correctAnswers: ["Clustering"],
+    explanation: "Unsupervised learning finds hidden patterns in unlabeled data. Clustering (grouping similar data points) is a classic unsupervised task."
+  },
+  {
+    id: "w4q17",
+    week: 4,
+    text: "In a regression problem, what type of variable is the target (dependent) variable?",
+    code: null,
+    options: ["Categorical", "Boolean", "Continuous", "Ordinal"],
+    correctAnswers: ["Continuous"],
+    explanation: "Regression involves predicting continuous numerical values (e.g., price, height, temperature). Classification predicts categorical/discrete labels."
+  },
+  {
+    id: "w4q18",
+    week: 4,
+    text: "Why do we use cross-validation in machine learning?",
+    code: null,
+    options: ["To increase training speed", "To assess how the results of a statistical analysis will generalize to an independent dataset", "To increase the number of features", "To delete outliers"],
+    correctAnswers: ["To assess how the results of a statistical analysis will generalize to an independent dataset"],
+    explanation: "Cross-validation is a resampling method used to evaluate models on a limited data sample to ensure they are generalizing well and not overfitting."
+  }
+];
+
+// --- HELPER COMPONENTS ---
+
+const arraysEqual = (a, b) => {
+  if (a.length !== b.length) return false;
+  const sortedA = [...a].sort();
+  const sortedB = [...b].sort();
+  return sortedA.every((val, index) => val === sortedB[index]);
+};
+
+// --- STUDY MODE COMPONENTS ---
+
+const StudyCard = ({ question }) => {
+  const [showExplanation, setShowExplanation] = useState(false);
+  const isMultiSelect = question.correctAnswers.length > 1;
+
+  return (
+    <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6 mb-6 transition-all">
+      <div className="flex justify-between items-start mb-4">
+        <span className="bg-indigo-100 text-indigo-800 text-xs font-semibold px-2.5 py-1 rounded-md">
+          Week {question.week === 0 ? '0 (Mock)' : question.week}
+        </span>
+        {isMultiSelect && (
+          <span className="bg-amber-100 text-amber-800 text-xs font-semibold px-2.5 py-1 rounded-md flex items-center">
+            <Info className="w-3 h-3 mr-1" /> Multiple Correct Answers
+          </span>
+        )}
+      </div>
+      
+      <h3 className="text-lg font-medium text-slate-800 mb-4">{question.text}</h3>
+      
+      {question.code && (
+        <pre className="bg-slate-800 text-slate-100 p-4 rounded-lg mb-4 overflow-x-auto text-sm font-mono">
+          <code>{question.code}</code>
+        </pre>
+      )}
+
+      <div className="space-y-2 mb-6">
+        {question.options.map((option, idx) => {
+          const isCorrect = question.correctAnswers.includes(option);
+          
+          let optionClass = "p-3 border rounded-lg text-slate-700 bg-slate-50";
+          if (showExplanation) {
+            if (isCorrect) optionClass = "p-3 border-2 border-green-500 bg-green-50 text-green-800 font-medium flex justify-between";
+            else optionClass = "p-3 border border-red-200 bg-red-50 text-red-600 opacity-70 flex justify-between";
+          }
+
+          return (
+            <div key={idx} className={optionClass}>
+              <span>{option}</span>
+              {showExplanation && isCorrect && <CheckCircle className="w-5 h-5 text-green-600" />}
+              {showExplanation && !isCorrect && <XCircle className="w-5 h-5 text-red-400" />}
+            </div>
+          );
+        })}
+      </div>
+
+      <button 
+        onClick={() => setShowExplanation(!showExplanation)}
+        className="text-indigo-600 font-medium text-sm flex items-center hover:text-indigo-800 transition-colors"
+      >
+        {showExplanation ? "Hide Explanation" : "Show Answer & Explanation"}
+      </button>
+
+      {showExplanation && (
+        <div className="mt-4 p-4 bg-indigo-50 rounded-lg border border-indigo-100">
+          <h4 className="font-semibold text-indigo-900 mb-1">Explanation:</h4>
+          <p className="text-indigo-800 text-sm leading-relaxed">{question.explanation}</p>
+        </div>
+      )}
+    </div>
+  );
+};
+
+// --- TEST MODE COMPONENTS ---
+
+const TestRunner = ({ questions, onComplete }) => {
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [userAnswers, setUserAnswers] = useState({});
+
+  const question = questions[currentIndex];
+  const isMultiSelect = question.correctAnswers.length > 1;
+  const currentSelection = userAnswers[question.id] || [];
+
+  const handleOptionToggle = (option) => {
+    let newSelection = [...currentSelection];
+    if (isMultiSelect) {
+      if (newSelection.includes(option)) {
+        newSelection = newSelection.filter(item => item !== option);
+      } else {
+        newSelection.push(option);
+      }
+    } else {
+      newSelection = [option];
+    }
+    setUserAnswers({ ...userAnswers, [question.id]: newSelection });
+  };
+
+  const handleNext = () => {
+    if (currentIndex < questions.length - 1) {
+      setCurrentIndex(currentIndex + 1);
+    } else {
+      onComplete(userAnswers);
+    }
+  };
+
+  const handlePrev = () => {
+    if (currentIndex > 0) setCurrentIndex(currentIndex - 1);
+  };
+
+  const progress = ((currentIndex + 1) / questions.length) * 100;
+
+  return (
+    <div className="max-w-3xl mx-auto">
+      <div className="mb-6">
+        <div className="flex justify-between text-sm text-slate-500 mb-2">
+          <span>Question {currentIndex + 1} of {questions.length}</span>
+          <span>{Math.round(progress)}% Completed</span>
+        </div>
+        <div className="w-full bg-slate-200 rounded-full h-2.5">
+          <div className="bg-indigo-600 h-2.5 rounded-full transition-all duration-300" style={{ width: `${progress}%` }}></div>
+        </div>
+      </div>
+
+      <div className="bg-white rounded-xl shadow-md border border-slate-200 p-6 md:p-8">
+        <div className="mb-6 flex justify-between items-start">
+           <span className="bg-slate-100 text-slate-600 text-xs font-semibold px-2.5 py-1 rounded-md">
+            Week {question.week === 0 ? '0 (Mock)' : question.week}
+          </span>
+          {isMultiSelect && (
+             <span className="bg-amber-100 text-amber-800 text-xs font-semibold px-2.5 py-1 rounded-md">
+               Select all that apply
+             </span>
+          )}
+        </div>
+
+        <h2 className="text-xl font-medium text-slate-800 mb-6">{question.text}</h2>
+        
+        {question.code && (
+          <pre className="bg-slate-800 text-slate-100 p-4 rounded-lg mb-6 overflow-x-auto text-sm font-mono">
+            <code>{question.code}</code>
+          </pre>
+        )}
+
+        <div className="space-y-3 mb-8">
+          {question.options.map((option, idx) => {
+            const isSelected = currentSelection.includes(option);
+            return (
+              <label 
+                key={idx} 
+                className={`flex items-center p-4 border rounded-lg cursor-pointer transition-all ${
+                  isSelected ? 'border-indigo-500 bg-indigo-50 ring-1 ring-indigo-500' : 'border-slate-200 hover:bg-slate-50'
+                }`}
+              >
+                <input 
+                  type={isMultiSelect ? "checkbox" : "radio"} 
+                  name={`q-${question.id}`}
+                  checked={isSelected}
+                  onChange={() => handleOptionToggle(option)}
+                  className={`w-5 h-5 text-indigo-600 ${isMultiSelect ? 'rounded' : 'rounded-full'} border-slate-300 focus:ring-indigo-500 mr-4`}
+                />
+                <span className={`text-base ${isSelected ? 'text-indigo-900 font-medium' : 'text-slate-700'}`}>
+                  {option}
+                </span>
+              </label>
+            )
+          })}
+        </div>
+
+        <div className="flex justify-between items-center pt-4 border-t border-slate-100">
+          <button 
+            onClick={handlePrev}
+            disabled={currentIndex === 0}
+            className={`flex items-center px-4 py-2 rounded-lg font-medium transition-colors ${
+              currentIndex === 0 ? 'text-slate-400 cursor-not-allowed' : 'text-slate-700 hover:bg-slate-100'
+            }`}
+          >
+            <ChevronLeft className="w-5 h-5 mr-1" /> Previous
+          </button>
+          
+          <button 
+            onClick={handleNext}
+            className="flex items-center px-6 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg font-medium transition-colors"
+          >
+            {currentIndex === questions.length - 1 ? 'Submit Test' : 'Next'} <ChevronRight className="w-5 h-5 ml-1" />
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const TestResults = ({ questions, userAnswers, onRetry }) => {
+  let score = 0;
+  
+  const resultsData = questions.map(q => {
+    const uAns = userAnswers[q.id] || [];
+    const isCorrect = arraysEqual(uAns, q.correctAnswers);
+    if (isCorrect) score++;
+    return { ...q, isCorrect, userAns: uAns };
+  });
+
+  const percentage = Math.round((score / questions.length) * 100);
+
+  return (
+    <div className="max-w-4xl mx-auto">
+      <div className="bg-white rounded-xl shadow-md border border-slate-200 p-8 text-center mb-8">
+        <h2 className="text-3xl font-bold text-slate-800 mb-2">Test Completed!</h2>
+        <div className="flex justify-center items-center my-6">
+          <div className="relative w-32 h-32 flex items-center justify-center rounded-full bg-slate-50 border-8 border-indigo-100">
+            <span className="text-3xl font-bold text-indigo-600">{score}/{questions.length}</span>
+            <svg className="absolute inset-0 w-full h-full transform -rotate-90" viewBox="0 0 100 100">
+               <circle cx="50" cy="50" r="46" fill="transparent" stroke="currentColor" strokeWidth="8" className="text-indigo-600" strokeDasharray={`${percentage * 2.89} 289`} />
+            </svg>
+          </div>
+        </div>
+        <p className="text-lg text-slate-600 mb-6">
+          {percentage >= 80 ? 'Excellent work! You are ready.' : 
+           percentage >= 50 ? 'Good effort! Keep practicing.' : 'Needs review. Try studying the modules again.'}
+        </p>
+        <button 
+          onClick={onRetry}
+          className="inline-flex items-center px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg font-medium transition-colors"
+        >
+          <RefreshCw className="w-5 h-5 mr-2" /> Take Another Test
+        </button>
+      </div>
+
+      <h3 className="text-xl font-bold text-slate-800 mb-6">Detailed Review</h3>
+      
+      {resultsData.map((res, i) => (
+        <div key={res.id} className={`bg-white rounded-xl border-l-4 p-6 mb-4 shadow-sm ${res.isCorrect ? 'border-l-green-500' : 'border-l-red-500'}`}>
+          <div className="flex items-start mb-4">
+             {res.isCorrect ? <CheckCircle className="w-6 h-6 text-green-500 mr-3 mt-1 flex-shrink-0" /> : <XCircle className="w-6 h-6 text-red-500 mr-3 mt-1 flex-shrink-0" />}
+             <div>
+               <h4 className="text-lg font-medium text-slate-800">{i+1}. {res.text}</h4>
+               {res.code && (
+                  <pre className="bg-slate-800 text-slate-100 p-3 rounded-lg mt-3 overflow-x-auto text-sm font-mono">
+                    <code>{res.code}</code>
+                  </pre>
+                )}
+             </div>
+          </div>
+          
+          <div className="ml-9 grid grid-cols-1 md:grid-cols-2 gap-4 text-sm mt-4">
+            <div className="bg-slate-50 p-4 rounded-lg border border-slate-100">
+              <span className="font-semibold text-slate-500 block mb-2">Your Answer(s):</span>
+              {res.userAns.length > 0 ? res.userAns.map((a, idx) => <div key={idx} className="text-slate-800">{a}</div>) : <span className="text-slate-400 italic">Skipped</span>}
+            </div>
+            <div className="bg-green-50 p-4 rounded-lg border border-green-100">
+              <span className="font-semibold text-green-800 block mb-2">Correct Answer(s):</span>
+              {res.correctAnswers.map((a, idx) => <div key={idx} className="text-green-900">{a}</div>)}
+            </div>
+          </div>
+          
+          {!res.isCorrect && (
+            <div className="ml-9 mt-4 p-4 bg-indigo-50 rounded-lg text-sm text-indigo-900 border border-indigo-100">
+              <span className="font-semibold block mb-1">Explanation:</span>
+              {res.explanation}
+            </div>
+          )}
+        </div>
+      ))}
+    </div>
+  );
+};
+
+
+// --- MAIN APP COMPONENT ---
+
+export default function App() {
+  const [activeTab, setActiveTab] = useState('study'); 
+  const [studyFilter, setStudyFilter] = useState('all');
+  const [testMode, setTestMode] = useState('setup');
+  const [testConfig, setTestConfig] = useState({ type: 'random', week: 'all', count: 10 });
+  const [activeTestQuestions, setActiveTestQuestions] = useState([]);
+  const [testResults, setTestResults] = useState(null);
+
+  const filteredStudyQuestions = useMemo(() => {
+    if (studyFilter === 'all') return questionsData;
+    return questionsData.filter(q => q.week === parseInt(studyFilter));
+  }, [studyFilter]);
+
+  // Dynamically calculate the maximum available questions based on the selected week
+  const availableQuestions = useMemo(() => {
+    if (testConfig.week === 'all') return questionsData.length;
+    return questionsData.filter(q => q.week === parseInt(testConfig.week)).length;
+  }, [testConfig.week]);
+
+  const handleStartTest = () => {
+    let pool = questionsData;
+    if (testConfig.week !== 'all') {
+      pool = questionsData.filter(q => q.week === parseInt(testConfig.week));
+    }
+    
+    let selected = [...pool];
+    if (testConfig.type === 'random') {
+      selected = selected.sort(() => 0.5 - Math.random());
+      selected = selected.slice(0, Math.min(testConfig.count, selected.length));
+    }
+    
+    if (selected.length === 0) {
+      alert("No questions available for this selection.");
+      return;
+    }
+
+    setActiveTestQuestions(selected);
+    setTestMode('active');
+  };
+
+  const handleTestComplete = (answers) => {
+    setTestResults(answers);
+    setTestMode('results');
+  };
+
+  const resetTest = () => {
+    setTestMode('setup');
+    setTestResults(null);
+    setActiveTestQuestions([]);
+  };
+
+  return (
+    <div className="min-h-screen bg-slate-50 text-slate-800 font-sans">
+      <header className="bg-white border-b border-slate-200 sticky top-0 z-10">
+        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between items-center h-16">
+            <div className="flex items-center">
+              <div className="w-8 h-8 bg-indigo-600 text-white rounded-lg flex items-center justify-center font-bold text-xl mr-3">P</div>
+              <h1 className="text-xl font-bold text-slate-800 hidden sm:block">Python Data Science Prep</h1>
+            </div>
+            
+            <div className="flex space-x-2">
+              <button 
+                onClick={() => {setActiveTab('study'); resetTest();}}
+                className={`flex items-center px-4 py-2 rounded-md font-medium text-sm transition-colors ${activeTab === 'study' ? 'bg-indigo-50 text-indigo-700' : 'text-slate-600 hover:bg-slate-100'}`}
+              >
+                <BookOpen className="w-4 h-4 mr-2" /> Study Mode
+              </button>
+              <button 
+                onClick={() => setActiveTab('test')}
+                className={`flex items-center px-4 py-2 rounded-md font-medium text-sm transition-colors ${activeTab === 'test' ? 'bg-indigo-50 text-indigo-700' : 'text-slate-600 hover:bg-slate-100'}`}
+              >
+                <PenTool className="w-4 h-4 mr-2" /> Test Mode
+              </button>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <main className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        
+        {/* STUDY MODE VIEW */}
+        {activeTab === 'study' && (
+          <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
+            <div className="lg:col-span-1">
+              <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-sm sticky top-24">
+                <h2 className="font-bold text-slate-800 mb-4 uppercase text-xs tracking-wider">Filter by Module</h2>
+                <div className="space-y-2">
+                  <button onClick={() => setStudyFilter('all')} className={`w-full text-left px-3 py-2 rounded-lg text-sm transition-colors ${studyFilter === 'all' ? 'bg-indigo-600 text-white font-medium' : 'hover:bg-slate-100 text-slate-700'}`}>All Questions ({questionsData.length})</button>
+                  <button onClick={() => setStudyFilter('0')} className={`w-full text-left px-3 py-2 rounded-lg text-sm transition-colors ${studyFilter === '0' ? 'bg-indigo-600 text-white font-medium' : 'hover:bg-slate-100 text-slate-700'}`}>Week 0: Practice</button>
+                  <button onClick={() => setStudyFilter('1')} className={`w-full text-left px-3 py-2 rounded-lg text-sm transition-colors ${studyFilter === '1' ? 'bg-indigo-600 text-white font-medium' : 'hover:bg-slate-100 text-slate-700'}`}>Week 1: Basics</button>
+                  <button onClick={() => setStudyFilter('2')} className={`w-full text-left px-3 py-2 rounded-lg text-sm transition-colors ${studyFilter === '2' ? 'bg-indigo-600 text-white font-medium' : 'hover:bg-slate-100 text-slate-700'}`}>Week 2: Data Structures</button>
+                  <button onClick={() => setStudyFilter('3')} className={`w-full text-left px-3 py-2 rounded-lg text-sm transition-colors ${studyFilter === '3' ? 'bg-indigo-600 text-white font-medium' : 'hover:bg-slate-100 text-slate-700'}`}>Week 3: Pandas</button>
+                  <button onClick={() => setStudyFilter('4')} className={`w-full text-left px-3 py-2 rounded-lg text-sm transition-colors ${studyFilter === '4' ? 'bg-indigo-600 text-white font-medium' : 'hover:bg-slate-100 text-slate-700'}`}>Week 4: Machine Learning</button>
+                </div>
+              </div>
+            </div>
+            
+            <div className="lg:col-span-3">
+              <div className="mb-6">
+                <h2 className="text-2xl font-bold text-slate-800">
+                  {studyFilter === 'all' ? 'All Questions' : `Week ${studyFilter} Questions`}
+                </h2>
+                <p className="text-slate-500 text-sm mt-1">Review questions, check answers, and read detailed explanations.</p>
+              </div>
+              
+              {filteredStudyQuestions.map(q => (
+                <StudyCard key={q.id} question={q} />
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* TEST MODE VIEW */}
+        {activeTab === 'test' && (
+          <div>
+            {testMode === 'setup' && (
+              <div className="max-w-2xl mx-auto bg-white rounded-xl shadow-sm border border-slate-200 p-8">
+                <div className="text-center mb-8">
+                  <div className="inline-flex items-center justify-center w-16 h-16 bg-indigo-100 text-indigo-600 rounded-full mb-4">
+                    <PenTool className="w-8 h-8" />
+                  </div>
+                  <h2 className="text-2xl font-bold text-slate-800">Configure Your Test</h2>
+                  <p className="text-slate-500 mt-2">Test your knowledge under simulated conditions.</p>
+                </div>
+
+                <div className="space-y-6">
+                  <div>
+                    <label className="block text-sm font-medium text-slate-700 mb-2">Test Type</label>
+                    <div className="grid grid-cols-2 gap-4">
+                      <button 
+                        onClick={() => setTestConfig({...testConfig, type: 'random'})}
+                        className={`py-3 px-4 border rounded-lg font-medium text-sm transition-colors ${testConfig.type === 'random' ? 'border-indigo-600 bg-indigo-50 text-indigo-700' : 'border-slate-200 text-slate-600 hover:bg-slate-50'}`}
+                      >
+                        Random Mix
+                      </button>
+                      <button 
+                        onClick={() => setTestConfig({...testConfig, type: 'all'})}
+                        className={`py-3 px-4 border rounded-lg font-medium text-sm transition-colors ${testConfig.type === 'all' ? 'border-indigo-600 bg-indigo-50 text-indigo-700' : 'border-slate-200 text-slate-600 hover:bg-slate-50'}`}
+                      >
+                        All Available
+                      </button>
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-slate-700 mb-2">Target Module</label>
+                    <select 
+                      className="w-full border-slate-300 rounded-lg shadow-sm focus:border-indigo-500 focus:ring-indigo-500 p-3 border text-slate-700 bg-white"
+                      value={testConfig.week}
+                      onChange={(e) => {
+                        const newWeek = e.target.value;
+                        const newAvailable = newWeek === 'all' 
+                          ? questionsData.length 
+                          : questionsData.filter(q => q.week === parseInt(newWeek)).length;
+                        
+                        setTestConfig({
+                          ...testConfig, 
+                          week: newWeek, 
+                          // Clamp the slider down if the new pool is smaller than the current count
+                          count: Math.min(testConfig.count, newAvailable)
+                        });
+                      }}
+                    >
+                      <option value="all">Complete Syllabus (Weeks 0-4)</option>
+                      <option value="0">Week 0 Only</option>
+                      <option value="1">Week 1 Only</option>
+                      <option value="2">Week 2 Only</option>
+                      <option value="3">Week 3 Only</option>
+                      <option value="4">Week 4 Only</option>
+                    </select>
+                  </div>
+
+                  {testConfig.type === 'random' && (
+                    <div>
+                      <label className="block text-sm font-medium text-slate-700 mb-2">Number of Questions</label>
+                      <input 
+                        type="range" 
+                        min="1" 
+                        max={availableQuestions} 
+                        value={testConfig.count}
+                        onChange={(e) => setTestConfig({...testConfig, count: parseInt(e.target.value)})}
+                        className="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-indigo-600"
+                      />
+                      <div className="text-center mt-2 font-semibold text-indigo-600">
+                        {testConfig.count} / {availableQuestions} Questions
+                      </div>
+                    </div>
+                  )}
+
+                  <div className="pt-4 mt-6 border-t border-slate-100">
+                    <button 
+                      onClick={handleStartTest}
+                      className="w-full flex items-center justify-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-base font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors"
+                    >
+                      <Play className="w-5 h-5 mr-2" fill="currentColor" /> Start Test
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {testMode === 'active' && (
+              <TestRunner 
+                questions={activeTestQuestions} 
+                onComplete={handleTestComplete} 
+              />
+            )}
+
+            {testMode === 'results' && (
+              <TestResults 
+                questions={activeTestQuestions} 
+                userAnswers={testResults} 
+                onRetry={resetTest} 
+              />
+            )}
+          </div>
+        )}
+
+      </main>
+    </div>
+  );
+}
